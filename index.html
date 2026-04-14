@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia de Videojuegos - Dashboard Maestro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020205;
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --neon-pink: #ff00ea;
+            --neon-green: #39ff14;
+            --neon-orange: #ff9d00;
+            --neon-emerald: #00ffcc;
+            --neon-red: #ff3c3c;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.05) 0%, transparent 80%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 4px, 3px 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            margin: 0;
+            cursor: crosshair;
+            scroll-behavior: smooth;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gamer-font { font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
+
+        .main-layout {
+            width: 100%;
+            max-width: 1400px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-height: 100vh;
+            justify-content: center;
+            padding-bottom: 80px;
+        }
+
+        /* HUD SUPERIOR */
+        .deadline-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .deadline-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .deadline-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.02);
+            border-color: var(--d-color);
+        }
+
+        .deadline-item::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; width: 4px; height: 100%;
+            background: var(--d-color);
+            box-shadow: 0 0 15px var(--d-color);
+        }
+
+        /* CALENDARIO VISUAL */
+        .horizontal-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+        }
+
+        .card-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .day-card {
+            width: 100%;
+            background: rgba(10, 10, 15, 0.85);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-top: 4px solid var(--accent-color);
+            padding: 15px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
+            height: 340px;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .card-reflection {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0.8);
+            width: 80%;
+            height: 40px;
+            background: var(--accent-color);
+            filter: blur(25px);
+            opacity: 0.1;
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+
+        .card-container:hover .day-card {
+            transform: translateY(-15px);
+            background: rgba(20, 20, 35, 0.95);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            border-color: var(--accent-color);
+        }
+
+        .card-container:hover .card-reflection { opacity: 0.7; }
+
+        .day-card.completed {
+            border-color: var(--neon-green) !important;
+            background: rgba(57, 255, 20, 0.05);
+        }
+
+        .day-card.completed::after {
+            content: "✓ DONE";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--neon-green);
+            opacity: 0.2;
+            border: 2px solid var(--neon-green);
+            padding: 5px 15px;
+            pointer-events: none;
+        }
+
+        .day-header { font-size: 0.8rem; letter-spacing: 2px; color: var(--accent-color); margin-bottom: 12px; }
+        .task-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: white; line-height: 1.2; }
+        
+        .goal-box {
+            margin-top: auto;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            color: #555;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 10px;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+            transition: width 0.6s ease;
+            width: 15%;
+            margin-top: 8px;
+        }
+
+        .completed .progress-bar { background: var(--neon-green); width: 100% !important; }
+
+        .glitch {
+            text-shadow: 0.05em 0 0 var(--neon-pink), -0.05em -0.025em 0 var(--neon-blue);
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 var(--neon-pink), -0.05em -0.025em 0 var(--neon-blue); }
+            50% { text-shadow: 0.025em 0.05em 0 var(--neon-pink), 0.05em 0 0 var(--neon-blue); }
+            100% { text-shadow: -0.025em 0 0 var(--neon-pink), -0.025em -0.025em 0 var(--neon-blue); }
+        }
+
+        /* --- SECCIÓN DE NOTAS --- */
+        .notes-section {
+            width: 100%;
+            max-width: 1400px;
+            z-index: 10;
+            padding: 80px 0;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .sticky-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .sticky-note {
+            background: #fdfd96;
+            color: #333;
+            padding: 28px 22px 22px 22px;
+            min-height: 260px;
+            box-shadow: 8px 8px 25px rgba(0,0,0,0.6);
+            transform: rotate(-1deg);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sticky-note:hover { transform: scale(1.05) rotate(0deg); z-index: 20; box-shadow: 12px 12px 35px rgba(0,0,0,0.8); }
+
+        .pin {
+            position: absolute;
+            top: 10px; left: 50%; transform: translateX(-50%);
+            width: 14px; height: 14px; background: #ff4444; border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5;
+        }
+
+        .delete-btn {
+            position: absolute; top: 5px; right: 10px;
+            font-size: 20px; color: rgba(0,0,0,0.15); cursor: pointer;
+            font-weight: bold; transition: color 0.2s;
+        }
+        .delete-btn:hover { color: #ff4444; }
+
+        .sticky-note h3 {
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.25rem;
+            margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 5px; outline: none; text-transform: uppercase;
+        }
+
+        .sticky-note p { font-size: 1.05rem; line-height: 1.4; color: #222; flex-grow: 1; outline: none; min-height: 100px; }
+
+        .note-blue { background: #e1f5fe; }
+        .note-pink { background: #f8bbd0; }
+        .note-green { background: #c8e6c9; }
+        .note-yellow { background: #fff9c4; }
+
+        .add-note-card {
+            border: 3px dashed rgba(255, 255, 255, 0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 260px; cursor: pointer; transition: all 0.3s ease; color: rgba(255, 255, 255, 0.2);
+        }
+        .add-note-card:hover { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(0, 242, 255, 0.05); }
+
+        .system-log {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            padding: 12px 25px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            display: flex; align-items: center; gap: 15px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="main-layout">
+        <div class="text-center mb-6">
+            <h1 class="gamer-font text-6xl font-900 glitch">Historia de Videojuegos</h1>
+        </div>
+
+        <div class="deadline-panel">
+            <div class="deadline-item" style="--d-color: var(--neon-emerald);">
+                <div class="text-[10px] uppercase text-gray-500">Próximo Drop</div>
+                <div class="gamer-font text-base text-emerald-400">MIÉRCOLES 16:00</div>
+            </div>
+            <div class="deadline-item" style="--d-color: var(--neon-orange);">
+                <div class="text-[10px] uppercase text-gray-500">Final Event</div>
+                <div class="gamer-font text-base text-orange-400">DOMINGO 16:00</div>
+            </div>
+            
+            <!-- BOTÓN AL CANAL DE YOUTUBE ACTUALIZADO -->
+            <a href="https://www.youtube.com/@HistoriadeVJ" target="_blank" class="deadline-item" style="--d-color: var(--neon-blue);">
+                <div class="text-[10px] uppercase text-gray-500">Mi Canal (Live)</div>
+                <div class="gamer-font text-base text-cyan-400">> YOUTUBE</div>
+            </a>
+
+            <!-- BOTÓN AL STUDIO -->
+            <a href="https://studio.youtube.com/channel/UCdjFoD9p23JVzwD5nMJTPZg" target="_blank" class="deadline-item" style="--d-color: var(--neon-pink);">
+                <div class="text-[10px] uppercase text-gray-500">Youtube Studio</div>
+                <div class="gamer-font text-base text-pink-400">ANALYTICS PANEL</div>
+            </a>
+        </div>
+
+        <!-- CALENDARIO (Días generados dinámicamente) -->
+        <div class="horizontal-container" id="calendar-container">
+            <!-- Los días se cargarán aquí por JS -->
+        </div>
+
+        <div class="system-log mt-4">
+            <span class="animate-pulse text-red-500">●</span> 
+            <span>Actividad:</span> 
+            <span id="log-text" class="text-white">Motor de persistencia listo.</span>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE NOTAS -->
+    <div class="notes-section" id="ideas-section">
+        <div class="text-center mb-10">
+            <h2 class="gamer-font text-3xl text-cyan-400 tracking-widest">BANCO DE TRABAJO</h2>
+            <p class="text-gray-500 text-sm mt-2">NOTAS Y PROGRESO DEL CALENDARIO SE GUARDAN AL INSTANTE</p>
+        </div>
+
+        <div class="sticky-grid" id="notes-container">
+            <div class="add-note-card" onclick="addNewNote()">
+                <span class="text-5xl mb-2">+</span>
+                <span class="gamer-font text-xs">Nueva Idea</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATOS INICIALES ---
+        const daysConfig = [
+            { day: 'LUNES', title: 'Investigación "Bicéfala"', desc: 'Documentar los 2 temas de la semana.', color: 'var(--neon-blue)' },
+            { day: 'MARTES', title: 'Redacción Maratón', desc: 'Dos guiones completos + clips.', color: 'var(--neon-purple)' },
+            { day: 'MIÉRCOLES', title: 'Grabación Total', desc: 'Locuciones y captura de gameplay.', color: 'var(--neon-pink)' },
+            { day: 'JUEVES', title: 'Montaje Base (Dom)', desc: 'Esqueleto visual del video principal.', color: 'var(--neon-orange)' },
+            { day: 'VIERNES', title: 'Montaje Base (Mie)', desc: 'Edición del video secundario.', color: 'var(--neon-emerald)' },
+            { day: 'SÁBADO', title: 'Pulido Maestro', desc: 'SFX, música y programación.', color: 'var(--neon-green)' },
+            { day: 'DOMINGO', title: 'Lanzamiento', desc: 'Publicación y gestión de comunidad.', color: 'var(--neon-red)' }
+        ];
+
+        // Estado global: Cargar de LocalStorage o usar valores por defecto
+        let appState = JSON.parse(localStorage.getItem('gamer_dashboard_state')) || {
+            completedDays: [], 
+            notes: [
+                { id: 1, title: "Star Fox SNES", text: "Análisis del Chip Super FX.", color: "note-yellow", rotate: "-1" }
+            ]
+        };
+
+        function saveState() {
+            localStorage.setItem('gamer_dashboard_state', JSON.stringify(appState));
+        }
+
+        // --- RENDERIZADO DEL CALENDARIO ---
+        function renderCalendar() {
+            const container = document.getElementById('calendar-container');
+            container.innerHTML = '';
+
+            daysConfig.forEach(config => {
+                const isDone = appState.completedDays.includes(config.day);
+                const dayWrapper = document.createElement('div');
+                dayWrapper.className = 'card-container';
+                dayWrapper.onclick = () => toggleDay(config.day, dayWrapper);
+                dayWrapper.style.setProperty('--accent-color', config.color);
+
+                dayWrapper.innerHTML = `
+                    <div class="day-card ${isDone ? 'completed' : ''}">
+                        <div class="day-header gamer-font">${config.day}</div>
+                        <div class="task-title">${config.title}</div>
+                        <p class="text-[0.85rem] text-gray-400 flex-grow">${config.desc}</p>
+                        <div class="goal-box">${isDone ? 'STAGE CLEAR ✓' : 'PENDIENTE'}</div>
+                        <div class="progress-bar"></div>
+                    </div>
+                    <div class="card-reflection"></div>
+                `;
+                container.appendChild(dayWrapper);
+            });
+        }
+
+        function toggleDay(dayName, element) {
+            const index = appState.completedDays.indexOf(dayName);
+            const card = element.querySelector('.day-card');
+            const goalBox = element.querySelector('.goal-box');
+
+            if (index === -1) {
+                appState.completedDays.push(dayName);
+                card.classList.add('completed');
+                goalBox.innerText = 'STAGE CLEAR ✓';
+                createBurst(element);
+                document.getElementById('log-text').innerText = `[SAVE] ${dayName} guardado como completado.`;
+            } else {
+                appState.completedDays.splice(index, 1);
+                card.classList.remove('completed');
+                goalBox.innerText = 'PENDIENTE';
+                document.getElementById('log-text').innerText = `[SAVE] ${dayName} vuelto a pendiente.`;
+            }
+            saveState();
+        }
+
+        // --- RENDERIZADO DE NOTAS ---
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            if (!container) return;
+            const addBtn = container.querySelector('.add-note-card');
+            container.innerHTML = '';
+            container.appendChild(addBtn);
+
+            appState.notes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = `sticky-note ${note.color}`;
+                noteDiv.style.transform = `rotate(${note.rotate}deg)`;
+                noteDiv.innerHTML = `
+                    <div class="pin"></div>
+                    <div class="delete-btn" onclick="deleteNote(${note.id})">×</div>
+                    <h3 contenteditable="true" oninput="updateNote(${note.id}, 'title', this.innerText)">${note.title}</h3>
+                    <p contenteditable="true" oninput="updateNote(${note.id}, 'text', this.innerText)">${note.text}</p>
+                `;
+                container.appendChild(noteDiv);
+            });
+        }
+
+        function addNewNote() {
+            const colors = ['note-yellow', 'note-blue', 'note-pink', 'note-green'];
+            const newNote = {
+                id: Date.now(),
+                title: "Nuevo Título",
+                text: "Escribe aquí...",
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rotate: (Math.random() * 4 - 2).toFixed(1)
+            };
+            appState.notes.push(newNote);
+            saveState();
+            renderNotes();
+        }
+
+        function updateNote(id, field, value) {
+            const note = appState.notes.find(n => n.id === id);
+            if (note) {
+                note[field] = value;
+                saveState();
+            }
+        }
+
+        function deleteNote(id) {
+            appState.notes = appState.notes.filter(n => n.id !== id);
+            saveState();
+            renderNotes();
+        }
+
+        // --- MOTOR DE PARTÍCULAS ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor(x, y, color = null) {
+                this.x = x; this.y = y;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 4;
+                this.speedY = (Math.random() - 0.5) * 4;
+                this.color = color || "#00f2ff";
+                this.life = 1;
+            }
+            update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.02; }
+            draw() {
+                ctx.fillStyle = this.color; ctx.globalAlpha = this.life;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        function createBurst(element) {
+            const rect = element.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            for (let i = 0; i < 20; i++) particles.push(new Particle(cx, cy, "#39ff14"));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.update(); p.draw();
+                if (p.life <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = () => {
+            renderCalendar();
+            renderNotes();
+            animate();
+        };
+    </script>
+</body>
+</html>
