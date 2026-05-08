@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historia de Videojuegos - Dashboard Maestro</title>
+    <title>Banco de Ideas - Historia de VJ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -14,8 +14,7 @@
             --neon-pink: #ff00ea;
             --neon-green: #39ff14;
             --neon-orange: #ff9d00;
-            --neon-emerald: #00ffcc;
-            --neon-red: #ff3c3c;
+            --yt-red: #ff0000;
         }
 
         body {
@@ -28,15 +27,9 @@
                 linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 100%, 100% 4px, 3px 100%;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px;
             margin: 0;
+            padding: 20px 20px 60px 20px;
             cursor: crosshair;
-            scroll-behavior: smooth;
         }
 
         #particle-canvas {
@@ -48,150 +41,50 @@
 
         .gamer-font { font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
 
-        .main-layout {
-            width: 100%;
-            max-width: 1400px;
+        .container-layout {
+            position: relative;
             z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            min-height: 100vh;
-            justify-content: center;
-            padding-bottom: 80px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        /* HUD SUPERIOR */
-        .deadline-panel {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        /* NAVEGACIÓN SUPERIOR */
+        .top-nav {
+            display: flex;
+            justify-content: flex-end;
             gap: 15px;
-            width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 40px;
         }
 
-        .deadline-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 15px;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(5px);
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-        }
-
-        .deadline-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: scale(1.02);
-            border-color: var(--d-color);
-        }
-
-        .deadline-item::before {
-            content: "";
-            position: absolute;
-            left: 0; top: 0; width: 4px; height: 100%;
-            background: var(--d-color);
-            box-shadow: 0 0 15px var(--d-color);
-        }
-
-        /* CALENDARIO VISUAL */
-        .horizontal-container {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
-        }
-
-        .card-container {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .day-card {
-            width: 100%;
-            background: rgba(10, 10, 15, 0.85);
-            border: 1px solid rgba(0, 242, 255, 0.15);
-            border-top: 4px solid var(--accent-color);
-            padding: 15px;
-            position: relative;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
-            height: 340px;
-            z-index: 2;
-            cursor: pointer;
-        }
-
-        .card-reflection {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%) scaleX(0.8);
-            width: 80%;
-            height: 40px;
-            background: var(--accent-color);
-            filter: blur(25px);
-            opacity: 0.1;
-            transition: all 0.4s ease;
-            pointer-events: none;
-        }
-
-        .card-container:hover .day-card {
-            transform: translateY(-15px);
-            background: rgba(20, 20, 35, 0.95);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-            border-color: var(--accent-color);
-        }
-
-        .card-container:hover .card-reflection { opacity: 0.7; }
-
-        .day-card.completed {
-            border-color: var(--neon-green) !important;
-            background: rgba(57, 255, 20, 0.05);
-        }
-
-        .day-card.completed::after {
-            content: "✓ DONE";
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
+        .nav-button {
+            padding: 8px 16px;
+            border: 1px solid var(--neon-blue);
+            background: rgba(0, 242, 255, 0.05);
+            color: var(--neon-blue);
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            color: var(--neon-green);
-            opacity: 0.2;
-            border: 2px solid var(--neon-green);
-            padding: 5px 15px;
-            pointer-events: none;
-        }
-
-        .day-header { font-size: 0.8rem; letter-spacing: 2px; color: var(--accent-color); margin-bottom: 12px; }
-        .task-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: white; line-height: 1.2; }
-        
-        .goal-box {
-            margin-top: auto;
             font-size: 0.7rem;
-            font-family: 'Orbitron', sans-serif;
             letter-spacing: 1px;
-            color: #555;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
         }
 
-        .progress-bar {
-            height: 3px;
-            background: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-color);
-            transition: width 0.6s ease;
-            width: 15%;
-            margin-top: 8px;
+        .nav-button:hover {
+            background: var(--neon-blue);
+            color: black;
+            box-shadow: 0 0 15px var(--neon-blue);
+            transform: translateY(-2px);
         }
 
-        .completed .progress-bar { background: var(--neon-green); width: 100% !important; }
+        .nav-button.studio:hover {
+            border-color: var(--neon-purple);
+            background: var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
 
+        /* HEADER */
         .glitch {
             text-shadow: 0.05em 0 0 var(--neon-pink), -0.05em -0.025em 0 var(--neon-blue);
             animation: glitch 2s infinite;
@@ -203,80 +96,113 @@
             100% { text-shadow: -0.025em 0 0 var(--neon-pink), -0.025em -0.025em 0 var(--neon-blue); }
         }
 
-        /* --- SECCIÓN DE NOTAS --- */
-        .notes-section {
-            width: 100%;
-            max-width: 1400px;
-            z-index: 10;
-            padding: 80px 0;
-            border-top: 1px dashed rgba(255, 255, 255, 0.1);
-        }
-
+        /* NOTAS */
         .sticky-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 30px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
         }
 
         .sticky-note {
             background: #fdfd96;
             color: #333;
-            padding: 28px 22px 22px 22px;
-            min-height: 260px;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.6);
-            transform: rotate(-1deg);
-            transition: all 0.3s ease;
+            padding: 35px 20px 20px 20px;
+            min-height: 280px;
+            box-shadow: 10px 10px 25px rgba(0,0,0,0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             display: flex;
             flex-direction: column;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%);
         }
 
-        .sticky-note:hover { transform: scale(1.05) rotate(0deg); z-index: 20; box-shadow: 12px 12px 35px rgba(0,0,0,0.8); }
+        .sticky-note:hover {
+            transform: scale(1.03) translateY(-5px);
+            z-index: 20;
+            box-shadow: 15px 15px 35px rgba(0,0,0,0.7);
+        }
 
         .pin {
             position: absolute;
             top: 10px; left: 50%; transform: translateX(-50%);
-            width: 14px; height: 14px; background: #ff4444; border-radius: 50%;
+            width: 12px; height: 12px; background: #ff4444; border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5;
         }
 
         .delete-btn {
-            position: absolute; top: 5px; right: 10px;
-            font-size: 20px; color: rgba(0,0,0,0.15); cursor: pointer;
-            font-weight: bold; transition: color 0.2s;
+            position: absolute; top: 10px; right: 15px;
+            font-size: 24px; color: rgba(0,0,0,0.2); cursor: pointer;
+            line-height: 1; transition: color 0.2s;
         }
         .delete-btn:hover { color: #ff4444; }
 
         .sticky-note h3 {
-            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.25rem;
-            margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.3rem;
+            margin-bottom: 12px; border-bottom: 2px solid rgba(0,0,0,0.05);
             padding-bottom: 5px; outline: none; text-transform: uppercase;
         }
 
-        .sticky-note p { font-size: 1.05rem; line-height: 1.4; color: #222; flex-grow: 1; outline: none; min-height: 100px; }
-
-        .note-blue { background: #e1f5fe; }
-        .note-pink { background: #f8bbd0; }
-        .note-green { background: #c8e6c9; }
-        .note-yellow { background: #fff9c4; }
-
-        .add-note-card {
-            border: 3px dashed rgba(255, 255, 255, 0.1);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 260px; cursor: pointer; transition: all 0.3s ease; color: rgba(255, 255, 255, 0.2);
+        .sticky-note p { 
+            font-size: 1.1rem; line-height: 1.4; color: #222; 
+            flex-grow: 1; outline: none; min-height: 120px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .add-note-card:hover { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(0, 242, 255, 0.05); }
 
-        .system-log {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(0, 242, 255, 0.1);
-            padding: 12px 25px;
+        /* COLORES DE NOTAS */
+        .note-yellow { background: #fff9c4; border-left: 5px solid #fbc02d; }
+        .note-blue { background: #e1f5fe; border-left: 5px solid #0288d1; }
+        .note-pink { background: #fce4ec; border-left: 5px solid #d81b60; }
+        .note-green { background: #e8f5e9; border-left: 5px solid #43a047; }
+        .note-orange { background: #fff3e0; border-left: 5px solid #f57c00; }
+
+        /* AGREGAR NOTA */
+        .add-card {
+            border: 2px dashed rgba(0, 242, 255, 0.3);
+            background: rgba(0, 242, 255, 0.02);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 280px; cursor: pointer; transition: all 0.3s ease; 
+            color: rgba(0, 242, 255, 0.4);
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%);
+        }
+        .add-card:hover { 
+            border-color: var(--neon-blue); 
+            color: var(--neon-blue); 
+            background: rgba(0, 242, 255, 0.08);
+            transform: translateY(-5px);
+        }
+
+        /* BUSCADOR */
+        .search-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            font-size: 1.1rem;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 1px solid var(--neon-blue);
+            padding: 8px 20px;
             font-size: 12px;
-            letter-spacing: 2px;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            display: flex; align-items: center; gap: 15px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
             backdrop-filter: blur(10px);
         }
     </style>
@@ -285,224 +211,182 @@
 
     <canvas id="particle-canvas"></canvas>
 
-    <div class="main-layout">
-        <div class="text-center mb-6">
-            <h1 class="gamer-font text-6xl font-900 glitch">Historia de Videojuegos</h1>
-        </div>
-
-        <div class="deadline-panel">
-            <div class="deadline-item" style="--d-color: var(--neon-emerald);">
-                <div class="text-[10px] uppercase text-gray-500">Próximo Drop</div>
-                <div class="gamer-font text-base text-emerald-400">MIÉRCOLES 16:00</div>
-            </div>
-            <div class="deadline-item" style="--d-color: var(--neon-orange);">
-                <div class="text-[10px] uppercase text-gray-500">Final Event</div>
-                <div class="gamer-font text-base text-orange-400">DOMINGO 16:00</div>
-            </div>
-            
-            <!-- BOTÓN AL CANAL DE YOUTUBE ACTUALIZADO -->
-            <a href="https://www.youtube.com/@HistoriadeVJ" target="_blank" class="deadline-item" style="--d-color: var(--neon-blue);">
-                <div class="text-[10px] uppercase text-gray-500">Mi Canal (Live)</div>
-                <div class="gamer-font text-base text-cyan-400">> YOUTUBE</div>
+    <div class="container-layout">
+        <!-- Navegación de Canales -->
+        <nav class="top-nav">
+            <a href="https://www.youtube.com/@HistoriadeVJ" target="_blank" class="nav-button">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.05-.081 1.987l-.008.104-.02.26-.01.104c-.048.52-.115 1.023-.217 1.402a2.008 2.008 0 0 1-1.415 1.419c-1.111.303-5.25.336-6.103.336h-.149c-.853 0-4.992-.033-6.103-.336a2.008 2.008 0 0 1-1.415-1.419c-.101-.38-.172-.882-.22-1.402l-.01-.104-.022-.26-.008-.104C.045 8.994 0 8.046 0 7.071v-.075c0-.975.045-1.925.114-2.856l.008-.104.02-.26.01-.104c.048-.52.115-1.023.217-1.402a2.007 2.007 0 0 1 1.415-1.42c1.113-.302 5.278-.332 6.1-.335h.088zV6.157L11.181 8l-3.13 1.843V6.157z"/>
+                </svg>
+                Canal Principal
             </a>
-
-            <!-- BOTÓN AL STUDIO -->
-            <a href="https://studio.youtube.com/channel/UCdjFoD9p23JVzwD5nMJTPZg" target="_blank" class="deadline-item" style="--d-color: var(--neon-pink);">
-                <div class="text-[10px] uppercase text-gray-500">Youtube Studio</div>
-                <div class="gamer-font text-base text-pink-400">ANALYTICS PANEL</div>
+            <a href="https://studio.youtube.com/channel/UCdjFoD9p23JVzwD5nMJTPZg" target="_blank" class="nav-button studio">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.5 1a.5.5 0 0 1 .5.5V4h2.5a.5.5 0 0 1 0 1H12v2.5a.5.5 0 0 1-1 0V5H8.5a.5.5 0 0 1 0-1H11V1.5a.5.5 0 0 1 .5-.5zM8.332 2.332a.5.5 0 0 1 .668.668l-5 5a.5.5 0 1 1-.707-.707l5-5z"/>
+                    <path d="M1 14.5V1.5A1.5 1.5 0 0 1 2.5 0h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V9a.5.5 0 0 1 1 0v5.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 0 14.5z"/>
+                </svg>
+                Análisis (Studio)
             </a>
+        </nav>
+
+        <header class="text-center mb-12">
+            <h1 class="gamer-font text-5xl font-900 glitch mb-2">Banco de Ideas</h1>
+            <p class="text-cyan-500 tracking-[0.3em] text-sm uppercase">Workshop de Contenido - Historia de Videojuegos</p>
+        </header>
+
+        <!-- Barra de Herramientas -->
+        <div class="search-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-cyan-500" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar idea o guión..." oninput="renderNotes()">
         </div>
 
-        <!-- CALENDARIO (Días generados dinámicamente) -->
-        <div class="horizontal-container" id="calendar-container">
-            <!-- Los días se cargarán aquí por JS -->
-        </div>
-
-        <div class="system-log mt-4">
-            <span class="animate-pulse text-red-500">●</span> 
-            <span>Actividad:</span> 
-            <span id="log-text" class="text-white">Motor de persistencia listo.</span>
+        <!-- Rejilla de Notas -->
+        <div class="sticky-grid" id="notes-container">
+            <!-- Botón Agregar -->
+            <div class="add-card" onclick="addNewNote()">
+                <span class="text-6xl font-light mb-2">+</span>
+                <span class="gamer-font text-xs tracking-widest">Añadir Nueva Entrada</span>
+            </div>
         </div>
     </div>
 
-    <!-- SECCIÓN DE NOTAS -->
-    <div class="notes-section" id="ideas-section">
-        <div class="text-center mb-10">
-            <h2 class="gamer-font text-3xl text-cyan-400 tracking-widest">BANCO DE TRABAJO</h2>
-            <p class="text-gray-500 text-sm mt-2">NOTAS Y PROGRESO DEL CALENDARIO SE GUARDAN AL INSTANTE</p>
+    <!-- Barra de Estado Inferior -->
+    <div class="status-bar">
+        <div class="flex items-center gap-4">
+            <span class="text-cyan-400">SISTEMA: <span class="text-white">ONLINE</span></span>
+            <span class="text-cyan-400">NOTAS: <span id="count-label" class="text-white">0</span></span>
         </div>
-
-        <div class="sticky-grid" id="notes-container">
-            <div class="add-note-card" onclick="addNewNote()">
-                <span class="text-5xl mb-2">+</span>
-                <span class="gamer-font text-xs">Nueva Idea</span>
-            </div>
+        <div class="text-gray-500 italic">
+            Sincronizado con vuestro almacenamiento local.
         </div>
     </div>
 
     <script>
-        // --- DATOS INICIALES ---
-        const daysConfig = [
-            { day: 'LUNES', title: 'Investigación "Bicéfala"', desc: 'Documentar los 2 temas de la semana.', color: 'var(--neon-blue)' },
-            { day: 'MARTES', title: 'Redacción Maratón', desc: 'Dos guiones completos + clips.', color: 'var(--neon-purple)' },
-            { day: 'MIÉRCOLES', title: 'Grabación Total', desc: 'Locuciones y captura de gameplay.', color: 'var(--neon-pink)' },
-            { day: 'JUEVES', title: 'Montaje Base (Dom)', desc: 'Esqueleto visual del video principal.', color: 'var(--neon-orange)' },
-            { day: 'VIERNES', title: 'Montaje Base (Mie)', desc: 'Edición del video secundario.', color: 'var(--neon-emerald)' },
-            { day: 'SÁBADO', title: 'Pulido Maestro', desc: 'SFX, música y programación.', color: 'var(--neon-green)' },
-            { day: 'DOMINGO', title: 'Lanzamiento', desc: 'Publicación y gestión de comunidad.', color: 'var(--neon-red)' }
+        // Estado Global
+        let ideasState = JSON.parse(localStorage.getItem('vj_ideas_storage')) || [
+            { id: 1, title: "Miyamoto y el Jardín", text: "Idea para short: Cómo su infancia explorando cuevas creó Zelda.", color: "note-green", rotate: "-1" },
+            { id: 2, title: "Virtual Boy Fail", text: "Investigar por qué causaba tantos dolores de cabeza. ¿Marketing o hardware?", color: "note-pink", rotate: "1.5" }
         ];
 
-        // Estado global: Cargar de LocalStorage o usar valores por defecto
-        let appState = JSON.parse(localStorage.getItem('gamer_dashboard_state')) || {
-            completedDays: [], 
-            notes: [
-                { id: 1, title: "Star Fox SNES", text: "Análisis del Chip Super FX.", color: "note-yellow", rotate: "-1" }
-            ]
-        };
-
         function saveState() {
-            localStorage.setItem('gamer_dashboard_state', JSON.stringify(appState));
+            localStorage.setItem('vj_ideas_storage', JSON.stringify(ideasState));
+            updateStats();
         }
 
-        // --- RENDERIZADO DEL CALENDARIO ---
-        function renderCalendar() {
-            const container = document.getElementById('calendar-container');
-            container.innerHTML = '';
-
-            daysConfig.forEach(config => {
-                const isDone = appState.completedDays.includes(config.day);
-                const dayWrapper = document.createElement('div');
-                dayWrapper.className = 'card-container';
-                dayWrapper.onclick = () => toggleDay(config.day, dayWrapper);
-                dayWrapper.style.setProperty('--accent-color', config.color);
-
-                dayWrapper.innerHTML = `
-                    <div class="day-card ${isDone ? 'completed' : ''}">
-                        <div class="day-header gamer-font">${config.day}</div>
-                        <div class="task-title">${config.title}</div>
-                        <p class="text-[0.85rem] text-gray-400 flex-grow">${config.desc}</p>
-                        <div class="goal-box">${isDone ? 'STAGE CLEAR ✓' : 'PENDIENTE'}</div>
-                        <div class="progress-bar"></div>
-                    </div>
-                    <div class="card-reflection"></div>
-                `;
-                container.appendChild(dayWrapper);
-            });
+        function updateStats() {
+            document.getElementById('count-label').innerText = ideasState.length;
         }
 
-        function toggleDay(dayName, element) {
-            const index = appState.completedDays.indexOf(dayName);
-            const card = element.querySelector('.day-card');
-            const goalBox = element.querySelector('.goal-box');
-
-            if (index === -1) {
-                appState.completedDays.push(dayName);
-                card.classList.add('completed');
-                goalBox.innerText = 'STAGE CLEAR ✓';
-                createBurst(element);
-                document.getElementById('log-text').innerText = `[SAVE] ${dayName} guardado como completado.`;
-            } else {
-                appState.completedDays.splice(index, 1);
-                card.classList.remove('completed');
-                goalBox.innerText = 'PENDIENTE';
-                document.getElementById('log-text').innerText = `[SAVE] ${dayName} vuelto a pendiente.`;
-            }
-            saveState();
-        }
-
-        // --- RENDERIZADO DE NOTAS ---
+        // Renderizado
         function renderNotes() {
             const container = document.getElementById('notes-container');
-            if (!container) return;
-            const addBtn = container.querySelector('.add-note-card');
-            container.innerHTML = '';
-            container.appendChild(addBtn);
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const addBtnHtml = `
+                <div class="add-card" onclick="addNewNote()">
+                    <span class="text-6xl font-light mb-2">+</span>
+                    <span class="gamer-font text-xs tracking-widest">Añadir Nueva Entrada</span>
+                </div>
+            `;
+            container.innerHTML = addBtnHtml;
 
-            appState.notes.forEach(note => {
+            const filtered = ideasState.filter(n => 
+                n.title.toLowerCase().includes(searchTerm) || 
+                n.text.toLowerCase().includes(searchTerm)
+            );
+
+            filtered.forEach(note => {
                 const noteDiv = document.createElement('div');
                 noteDiv.className = `sticky-note ${note.color}`;
                 noteDiv.style.transform = `rotate(${note.rotate}deg)`;
                 noteDiv.innerHTML = `
                     <div class="pin"></div>
-                    <div class="delete-btn" onclick="deleteNote(${note.id})">×</div>
-                    <h3 contenteditable="true" oninput="updateNote(${note.id}, 'title', this.innerText)">${note.title}</h3>
-                    <p contenteditable="true" oninput="updateNote(${note.id}, 'text', this.innerText)">${note.text}</p>
+                    <div class="delete-btn" title="Eliminar nota" onclick="deleteNote(${note.id})">×</div>
+                    <h3 contenteditable="true" spellcheck="false" onblur="updateNote(${note.id}, 'title', this.innerText)">${note.title}</h3>
+                    <p contenteditable="true" spellcheck="false" onblur="updateNote(${note.id}, 'text', this.innerText)">${note.text}</p>
                 `;
                 container.appendChild(noteDiv);
             });
         }
 
         function addNewNote() {
-            const colors = ['note-yellow', 'note-blue', 'note-pink', 'note-green'];
+            const colors = ['note-yellow', 'note-blue', 'note-pink', 'note-green', 'note-orange'];
             const newNote = {
                 id: Date.now(),
-                title: "Nuevo Título",
-                text: "Escribe aquí...",
+                title: "NUEVO TEMA",
+                text: "Escribe los puntos clave aquí...",
                 color: colors[Math.floor(Math.random() * colors.length)],
                 rotate: (Math.random() * 4 - 2).toFixed(1)
             };
-            appState.notes.push(newNote);
+            ideasState.unshift(newNote);
             saveState();
             renderNotes();
         }
 
         function updateNote(id, field, value) {
-            const note = appState.notes.find(n => n.id === id);
-            if (note) {
+            const note = ideasState.find(n => n.id === id);
+            if (note && note[field] !== value) {
                 note[field] = value;
                 saveState();
             }
         }
 
         function deleteNote(id) {
-            appState.notes = appState.notes.filter(n => n.id !== id);
-            saveState();
-            renderNotes();
+            // Confirmación personalizada no invasiva podría ir aquí, por ahora usamos confirm nativo
+            if(confirm("¿Deseas purgar esta entrada de la base de datos?")) {
+                ideasState = ideasState.filter(n => n.id !== id);
+                saveState();
+                renderNotes();
+            }
         }
 
-        // --- MOTOR DE PARTÍCULAS ---
+        // --- MOTOR DE AMBIENTACIÓN ---
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+        function resize() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+        }
         window.addEventListener('resize', resize);
         resize();
 
         class Particle {
-            constructor(x, y, color = null) {
-                this.x = x; this.y = y;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 4;
-                this.speedY = (Math.random() - 0.5) * 4;
-                this.color = color || "#00f2ff";
-                this.life = 1;
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.life = Math.random() * 0.4 + 0.1;
             }
-            update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.02; }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+            }
             draw() {
-                ctx.fillStyle = this.color; ctx.globalAlpha = this.life;
+                ctx.fillStyle = "#00f2ff";
+                ctx.globalAlpha = this.life;
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
-        function createBurst(element) {
-            const rect = element.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top + rect.height / 2;
-            for (let i = 0; i < 20; i++) particles.push(new Particle(cx, cy, "#39ff14"));
-        }
+        for (let i = 0; i < 40; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, i) => {
-                p.update(); p.draw();
-                if (p.life <= 0) particles.splice(i, 1);
-            });
+            particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);
         }
 
         window.onload = () => {
-            renderCalendar();
             renderNotes();
+            updateStats();
             animate();
         };
     </script>
